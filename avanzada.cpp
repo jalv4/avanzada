@@ -47,91 +47,89 @@ struct SesionUso
             n++;
         }
 
-        Equipo equipos[n];
-        int i = 0;
-        equipo.clear();
-        equipo.seekg(0);
+            Equipo equipos[n];
+            int i = 0;
+            equipo.clear();
+            equipo.seekg(0);
 
         while(equipos.getline(encapsulador, 100){
                int p = 0;
                int j = 0;
 
-                    while(encapsulador[p] != '*'){
-                        equipos[i].codigo[j] = encapsulador[p];
-                        p++;
-                        j++;
-                     }
-                        equipos[i].codigo[j] = '\0';
-                        p += 2;
-                        j = 0;
+            while(encapsulador[p] != '*'){
+                equipos[i].codigo[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].codigo[j] = '\0';
+                p += 2;
+                j = 0;
 
         
-                    while(encapsulador[p] != '*'){
-                        equipos[i].nombre[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].nombre[j] = '\0';
-                        p += 2;
-                        j = 0;
+            while(encapsulador[p] != '*'){
+                equipos[i].nombre[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].nombre[j] = '\0';
+                p += 2;
+                j = 0;
         
-                    while(encapsulador[p] != '*'){
-                        equipos[i].laboratorio[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].laboratorio[j] = '\0';
+            while(encapsulador[p] != '*'){
+                equipos[i].laboratorio[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].laboratorio[j] = '\0';
+                p += 2;
+                j = 0;
 
-                        p += 2;
-                        j = 0;
+             while(encapsulador[p] != '*'){
+                equipos[i].tipo[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].tipo[j] = '\0';
+                p += 2;
+                j = 0;
 
-                    while(encapsulador[p] != '*'){
-                        equipos[i].tipo[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].tipo[j] = '\0';
-                        p += 2;
-                        j = 0;
-
-                    while(encapsulador[p] != '*'){
-                        equipos[i].estado[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].estado[j] = '\0';
-                        p += 2;
-                        j = 0;
+            while(encapsulador[p] != '*'){
+                equipos[i].estado[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].estado[j] = '\0';
+                p += 2;
+                j = 0;
 
     
-                    while(encapsulador[p] != '*'){
-                        equipos[i].costo[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].costo[j] = '\0';
-                        p += 2;
-                        j = 0;
-        
-                    while(encapsulador[p] != '*'){
-                        equipos[i].semestre[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].semestre[j] = '\0';
-
-                        p += 2;
-                        j = 0;
-
-                    while(encapsulador[p] != '\0'){
-                        equipos[i].descripcion[j] = encapsulador[p];
-                        p++;
-                        j++;
-                    }
-                        equipos[i].descripcion[j] = '\0';
-
-                i++;
+            while(encapsulador[p] != '*'){
+                equipos[i].costo[j] = encapsulador[p];
+                p++;
+                j++;
             }
+                equipos[i].costo[j] = '\0';
+                p += 2;
+                j = 0;
+        
+            while(encapsulador[p] != '*'){
+                equipos[i].semestre[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].semestre[j] = '\0';
+                p += 2;
+                j = 0;
+
+            while(encapsulador[p] != '\0'){
+                equipos[i].descripcion[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                equipos[i].descripcion[j] = '\0';
+
+        i++;
+    }
 
     archivo.close();
 }
@@ -156,7 +154,7 @@ void cargausuarios(){
             m++;
         }
 
-        Equipo usuarios[n];
+        Equipo usuarios[m];
         int i = 0;
         usuario.clear();
         usuario.seekg(0);
