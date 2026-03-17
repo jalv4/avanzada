@@ -138,7 +138,7 @@ struct SesionUso
 }
         
 //2.
-void cargausuarios(){
+void cargaUsuarios(){
 
     char encapsulador[100];
     int i = 0;
@@ -146,7 +146,7 @@ void cargausuarios(){
     ifstream usuario("usuarios.txt");
 
     if(!usuario){
-        cout << "no se pudo abrir el archivo usuarios\n";
+        cout << "No se pudo abrir el archivo usuarios\n";
         return;
     }
 
@@ -238,6 +238,7 @@ void consultarEstadoOpertaivoE(Equipo*equipos, int totalEquipos){
     cout<<"Equipos en mantenimiento: "<<mantenimiento<<endl;
     cout<<"Equipos con restricciones por semestre: "<<restriccion<<endl;
 }
+
 //4.
 int generarCodigoSesion(){
     ifstream archivo("sesiones.dat",ios::binary);
@@ -333,5 +334,5 @@ void programarSesion(Equipo*equipos,int totalEquipos,Usuario*usuarios,int totalU
 
 
 int main (){
-  
-}
+}  
+
