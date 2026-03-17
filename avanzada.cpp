@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <cstring>
+using namespace std;
 
 //Estructuras
 struct Equipo
@@ -235,12 +238,90 @@ void consultarEstadoOpertaivoE(Equipo*equipos, int totalEquipos){
     cout<<"Equipos en mantenimiento: "<<mantenimiento<<endl;
     cout<<"Equipos con restricciones por semestre: "<<restriccion<<endl;
 }
-
-
-
-
 //4.
-
+int generarCodigoSesion(){
+    ifstream archivo("sesiones.dat",ios::binary);
+    if(!archivo){
+        return 1;
+    }
+    archivo.seekg(0,ios::end);
+    long tam=archivo.tellg();
+    int numRegistros=tam/sizeof(SesionUso);
+    if(numRegistros==0){
+        archivo.close();
+        return 1;
+    }
+    SesionUso ultima;
+    archivo.seekg((numRegistros-1)*sizeof(SesionUso),ios::beg);
+    archivo.read(reinterpret_cast<char*>(&ultima),sizeof(SesionUso));
+    archivo.close();
+    return ultima.codigoSesion+1;
+}
+void programarSesion(Equipo*equipos,int totalEquipos,Usuario*usuarios,int totalUsuarios){
+    int codigoUsuario;
+    cout<<"Ingrese el codigo del usuario: ";
+    cin>>codigoUsuario;
+    Usuario*usuarioEncontrado=NULL;
+    Usuario*ptrU=usuarios;
+    Usuario*finU=usuarios+totalUsuarios;
+    while(ptrU<finU){
+        if(ptrU->codigo==codigoUsuario){
+            usuarioEncontrado=ptrU;
+            break;
+        }
+        ptrU++;
+    }
+    if(usuarioEncontrado==NULL){
+        cout<<"Usuario no encontrado"<<endl;
+        return;
+    }
+    int codigoEquipo;
+    cout<<"Ingrese el codigo del equipo: ";
+    cin>>codigoEquipo;
+    Equipo*equipoEncontrado=NULL;
+    Equipo*ptrE=equipos;
+    Equipo*finE=equipos+totalEquipos;
+    while(ptrE<finE){
+        if(ptrE->codigo==codigoEquipo){
+            equipoEncontrado=ptrE;
+            break;
+        }
+        ptrE++;
+    }
+    if(equipoEncontrado==NULL){
+        cout<<"Equipo no encontrado"<<endl;
+        return;
+    }
+    if(strcmp(equipoEncontrado->estado,"operativa")!=0){
+        cout<<"El equipo no esta operativo"<<endl;
+        return;
+    }
+    if(usuarioEncontrado->semestre<equipoEncontrado->semestreMin){
+        cout<<"El usuario no cumple el semestre minimo"<<endl;
+        return;
+    }
+    int duracion;
+    cout<<"Ingrese la duracion estimada en horas: ";
+    cin>>duracion;
+    SesionUso sesion;
+    sesion.codigoSesion=generarCodigoSesion();
+    sesion.codigoEquipo=codigoEquipo;
+    sesion.codigoUsuario=codigoUsuario;
+    sesion.duracion=duracion;
+    sesion.penalizacion=0;
+    strcpy(sesion.observaciones,"Sin observaciones");
+    cin.ignore();
+    cout<<"Ingrese la fecha de inicio (dd/mm/aaaa): ";
+    cin.getline(sesion.fechaInicio,20);
+    ofstream archivo("sesiones.dat",ios::binary|ios::app);
+    if(!archivo){
+        cout<<"Error al abrir el archivo"<<endl;
+        return;
+    }
+    archivo.write(reinterpret_cast<char*>(&sesion),sizeof(SesionUso));
+    archivo.close();
+    cout<<"Sesion registrada correctamente con codigo: "<<sesion.codigoSesion<<endl;
+}
 
 //5.
 
