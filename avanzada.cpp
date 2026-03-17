@@ -37,29 +37,35 @@ struct SesionUso
 
 //Funciones
 //1.
-    void cargaequipos(){
-        ifstream equipo(equipos.txt);
-        if(!equipo){
-            cout << "no se pudo abrir el archivo equipos\n";
-            exit;
-        }
-        int new n = 0;
-        char encapsulador[100];
+void cargaequipos(){
+    ifstream equipo(equipos.txt);
+    if(!equipo){
+        cout << "no se pudo abrir el archivo equipos\n";
+        exit(0);
+    }
 
-        while(equipo.getline(encapsulador, 100){
-            n++;
-        }
+    int n = 0;
+    char encapsulador[100];
+    char *pencapsulador = &encapsulador[0];
+    char encapsuladorint[10];
+    char *pencapsuladorint = &encapsuladorint[0];
+    char encapsuladorfloat[10];
+    char *pencapsuladorfloat = &encapsuladorfloat[0];
 
-            Equipo equipos[n];
-            int i = 0;
-            equipo.clear();
-            equipo.seekg(0);
+    while(equipo.getline(encapsulador, 100){
+        n++;
+    }
 
-        while(equipos.getline(encapsulador, 100){
-               int p = 0;
-               int j = 0;
+    Equipo new equipos[n];
+    
+    equipo.clear();
+    equipo.seekg(0);
 
-            while(encapsulador[p] != '*'){
+    while(equipos.getline(encapsulador, 100){
+            int p = 0;
+            int j = 0;
+
+            while(*pencapsulador != '*'){
                 equipos[i].codigo[j] = encapsulador[p];
                 p++;
                 j++;
@@ -130,8 +136,6 @@ struct SesionUso
                 j++;
             }
                 equipos[i].descripcion[j] = '\0';
-
-        i++;
     }
 
     archivo.close();
@@ -162,25 +166,25 @@ void cargaUsuarios(){
         usuario.clear();
         usuario.seekg(0);
 
-    while(usuario.getline(encapsulador,100)){
+        while(usuario.getline(encapsulador,100)){
 
-        int p = 0;
-        int j = 0;
+            int p = 0;
+            int j = 0;
 
-        while(encapsulador[p] != '*'){
-            usuarios[i].codigo[j] = encapsulador[p];
-            p++;
-            j++;
-        }
-            usuarios[i].codigo[j] = '\0';
-            p += 2;
-            j = 0;
+            while(encapsulador[p] != '*'){
+                usuarios[i].codigo[j] = encapsulador[p];
+                p++;
+                j++;
+            }
+                usuarios[i].codigo[j] = '\0';
+                p += 2;
+                j = 0;
 
-        while(encapsulador[p] != '*'){
-            usuarios[i].nombre[j] = encapsulador[p];
-            p++;
-            j++;
-        }
+            while(encapsulador[p] != '*'){
+                usuarios[i].nombre[j] = encapsulador[p];
+                p++;
+                j++;
+            }
             usuarios[i].nombre[j] = '\0';
             p += 2;
             j = 0;
