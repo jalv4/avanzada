@@ -325,7 +325,13 @@ void programarSesion(Equipo*equipos,int totalEquipos,Usuario*usuarios,int totalU
 }
 
 //5.
+void cerrarSesión(Equipo* equipos, int totalEquipos){
+    int codigoSesion;
+    cout<<"Ingrese el codigo de la sesion a cargar: ";
+    cin>>codigoSesion;
 
+    
+}
 
 //6.
 
