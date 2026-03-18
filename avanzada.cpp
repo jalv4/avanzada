@@ -394,7 +394,73 @@ void cerrarSesión(Equipo* equipos, int totalEquipos){
 }
 
 //6.
+void informeUsoIntensivo(Equipo* equipos, int totalEquipos){
 
+    float* horas = new float[totalEquipos];
+
+    // Inicializar
+    for(int i = 0; i < totalEquipos; i++){
+        horas[i] = 0;
+    }
+
+    ifstream archivo("sesiones.dat", ios::binary);
+
+    if(!archivo){
+        cout << "No hay sesiones registradas\n";
+        delete[] horas;
+        return;
+    }
+
+    SesionUso sesion;
+
+    while(archivo.read(reinterpret_cast<char*>(&sesion), sizeof(SesionUso))){
+        Equipo* ptr = equipos;
+
+        for(int i = 0; i < totalEquipos; i++){
+            if(ptr->codigo == sesion.codigoEquipo){
+                horas[i] += sesion.duracion;
+                break;
+            }
+            ptr++;
+        }
+    }
+
+    archivo.close();
+
+    // Analizar por laboratorio
+    for(int i = 0; i < totalEquipos; i++){
+        Equipo* actual = equipos + i;
+
+        float maxHoras = horas[i];
+        int indexMax = i;
+
+        for(int j = 0; j < totalEquipos; j++){
+            if(strcmp(actual->laboratorio, (equipos + j)->laboratorio) == 0){
+                if(horas[j] > maxHoras){
+                    maxHoras = horas[j];
+                    indexMax = j;
+                }
+            }
+        }
+
+        // Evitar repetir laboratorio
+        bool yaImpreso = false;
+        for(int k = 0; k < i; k++){
+            if(strcmp(actual->laboratorio, (equipos + k)->laboratorio) == 0){
+                yaImpreso = true;
+                break;
+            }
+        }
+
+        if(!yaImpreso){
+            cout<<"--" << actual->laboratorio << ": "
+                 << (equipos + indexMax)->nombre
+                 << " (" << maxHoras << " horas)" << endl;
+        }
+    }
+
+    delete[] horas;
+}
 
 //7.
 
