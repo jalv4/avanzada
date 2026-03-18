@@ -38,174 +38,235 @@ struct SesionUso
 //Funciones
 //1.
 void cargaequipos(){
-    ifstream equipo(equipos.txt);
-    if(!equipo){
+
+    ifstream equipo("equipos.txt");
+    if (!equipo) {
         cout << "no se pudo abrir el archivo equipos\n";
         exit(0);
     }
 
     int n = 0;
     char encapsulador[100];
-    char *pencapsulador = &encapsulador[0];
-    char encapsuladorint[10];
-    char *pencapsuladorint = &encapsuladorint[0];
-    char encapsuladorfloat[10];
-    char *pencapsuladorfloat = &encapsuladorfloat[0];
+    char* p = encapsulador;
+    char encapsuladorcodigo[4];
+    char* pcode = encapsuladorcodigo;
+    char encapsuladorsemestre[2];
+    char* ps= encapsuladorsemestre;
+    char encapsuladorcosto[11];
+    char* pcosto = encapsuladorcosto;
 
-    while(equipo.getline(encapsulador, 100){
+    while (equipo.getline(encapsulador, 100)) {
         n++;
     }
 
-    Equipo new equipos[n];
-    
+    Equipo* equipos = new Equipo[n];
+    Equipo* pequipos = equipos;
+
     equipo.clear();
     equipo.seekg(0);
 
-    while(equipos.getline(encapsulador, 100){
-            int p = 0;
-            int j = 0;
 
-            while(*pencapsulador != '*'){
-                equipos[i].codigo[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].codigo[j] = '\0';
-                p += 2;
-                j = 0;
-
+    while (equipo.getline(encapsulador, 100)) {
         
-            while(encapsulador[p] != '*'){
-                equipos[i].nombre[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].nombre[j] = '\0';
-                p += 2;
-                j = 0;
+        //codigo
+        pcode = encapsuladorcodigo
         
-            while(encapsulador[p] != '*'){
-                equipos[i].laboratorio[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].laboratorio[j] = '\0';
-                p += 2;
-                j = 0;
-
-             while(encapsulador[p] != '*'){
-                equipos[i].tipo[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].tipo[j] = '\0';
-                p += 2;
-                j = 0;
-
-            while(encapsulador[p] != '*'){
-                equipos[i].estado[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].estado[j] = '\0';
-                p += 2;
-                j = 0;
-
-    
-            while(encapsulador[p] != '*'){
-                equipos[i].costo[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].costo[j] = '\0';
-                p += 2;
-                j = 0;
+        while (*p != '\0' && *p != '*'){
+            *pcode = *p; 
+            pcode++;
+            p++;
+        }
+            *pcode = '\0';
+            pequipos->codigo = atoi(encapsuladorcodigo);
         
-            while(encapsulador[p] != '*'){
-                equipos[i].semestre[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].semestre[j] = '\0';
-                p += 2;
-                j = 0;
+        if (*p == '*'){
+            p += 2;
+        }
+        
+        //nombre
+        char* ptr = pequipos->nombre;
+        
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++;
+            p++;
+        }
+            *ptrn = '\0';
+            
+        if (*p == '*'){
+            p += 2;
+        }
+        
+        //lab
+        ptr = pequipos->laboratorio;
+        
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++
+            p++
+        }
+            *ptr = '\0';
+            
+        if (*p == '*'){
+            p += 2; 
+        } 
+        
+        //tipo
+        ptr = pequipos->tipo;
+       
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++
+            p++
+        }
+            *ptr = '\0';
+            
+        if (*p == '*'){
+            p += 2; 
+        } 
+        
+        //costo
+        pcosto = encapsuladorcosto
+        
+        while (*p != '\0' && *p != '*'){
+            *pcosto = *p; 
+            pcosto++;
+            p++;
+        }
+            *pcode = '\0';
+            pequipos->costo= atoi(encapsuladorcosto);
+        
+        if (*p == '*'){
+            p += 2;
+        }
+        
+        //semestre
+         ps = encapsuladorsemestre
+        
+        while (*p != '\0' && *p != '*'){
+            *ps = *p; 
+            ps++;
+            p++;
+        }
+            *ps = '\0';
+            pequipos->semestre= atoi(encapsuladorsemestre);
+        
+        if (*p == '*'){
+            p += 2;
+        }
+        
+        //descripción
+         ptr = pequipos->tipo;
+       
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++
+            p++
+        }
+            *ptr = '\0';
+            
+        if (*p == '*'){
+            p += 2; 
+        } 
 
-            while(encapsulador[p] != '\0'){
-                equipos[i].descripcion[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                equipos[i].descripcion[j] = '\0';
+        pequipos++;
     }
 
-    archivo.close();
+    equipo.close();
 }
         
 //2.
 void cargaUsuarios(){
 
     char encapsulador[100];
-    int i = 0;
 
     ifstream usuario("usuarios.txt");
 
     if(!usuario){
         cout << "No se pudo abrir el archivo usuarios\n";
-        return;
+        exit(0);
     }
 
-        int new m = 0;
-        char encapsulador[100];
+     int n = 0;
+    char encapsulador[100];
+    char* p = encapsulador;
+    char encapsuladorcodigo[4];
+    char* pcode = encapsuladorcodigo;
+    char encapsuladorsemestre[2];
+    char* ps= encapsuladorsemestre;
 
-        while(usuario.getline(encapsulador, 100){
-            m++;
-        }
 
-        Equipo usuarios[m];
-        int i = 0;
-        usuario.clear();
-        usuario.seekg(0);
+    while(usuario.getline(encapsulador, 100){
+        m++;
+    }
 
-        while(usuario.getline(encapsulador,100)){
+    Usuario* usuarios = new  Usuario[n];
+    Usuario* pusuarios = usuarios;
 
-            int p = 0;
-            int j = 0;
+    usuario.clear();
+    usuario.seekg(0);
 
-            while(encapsulador[p] != '*'){
-                usuarios[i].codigo[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-                usuarios[i].codigo[j] = '\0';
-                p += 2;
-                j = 0;
+     while(usuario.getline(encapsulador,100)){
 
-            while(encapsulador[p] != '*'){
-                usuarios[i].nombre[j] = encapsulador[p];
-                p++;
-                j++;
-            }
-            usuarios[i].nombre[j] = '\0';
-            p += 2;
-            j = 0;
+       //codigo
+        pcode = encapsuladorcodigo
         
-        while(encapsulador[p] != '*'){
-            usuarios[i].programa[j] = encapsulador[p];
+        while (*p != '\0' && *p != '*'){
+            *pcode = *p; 
+            pcode++;
             p++;
-            j++;
         }
-            usuarios[i].programa[j] = '\0';
-            p += 2;
-            j = 0;
+            *pcode = '\0';
+            pusuarios->codigo = atoi(encapsuladorcodigo);
         
-        while(encapsulador[p] != '\0'){
-            usuarios[i].semestre[j] = encapsulador[p];
-            p++;
-            j++;
+        if (*p == '*'){
+            p += 2;
         }
-            usuarios[i].semestre[j] = '\0';
+        
+        //nombre
+        char* ptr = pusuarios->nombre;
+        
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++;
+            p++;
+        }
+            *ptrn = '\0';
+            
+        if (*p == '*'){
+            p += 2;
+        }
+        
+        //programa
+        ptr = pusuarios->programa;
+        
+        while (*p && *p != '*'){
+            *ptr = *p;
+            ptr++
+            p++
+        }
+            *ptr = '\0';
+            
+        if (*p == '*'){
+            p += 2; 
+        } 
+        
+        //semestre
+        ps = encapsuladorsemestre;
+        
+        while (*p != '\0' && *p != '*'){
+            *ps = *p; 
+            ps++;
+            p++;
+        }
+            *ps = '\0';
+            pusuarios->semestre= atoi(encapsuladorsemestre);
+        
+        if (*p == '*'){
+            p += 2;
+        }
 
-        i++;
+        pusuarios++;
     }
 
     archivo.close();
