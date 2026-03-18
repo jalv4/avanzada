@@ -37,9 +37,9 @@ struct SesionUso
 
 //Funciones
 //1.
-void cargaequipos(){
+void cargaequipos(char nombreequipos []){
 
-    ifstream equipo("equipos.txt");
+    ifstream equipo(nombreequipos);
     if (!equipo) {
         cout << "no se pudo abrir el archivo equipos\n";
         exit(0);
@@ -176,11 +176,11 @@ void cargaequipos(){
 }
         
 //2.
-void cargaUsuarios(){
+void cargaUsuarios(char nombreusuarios []){
 
     char encapsulador[100];
 
-    ifstream usuario("usuarios.txt");
+    ifstream usuario(nombreusuarios);
 
     if(!usuario){
         cout << "No se pudo abrir el archivo usuarios\n";
@@ -190,7 +190,7 @@ void cargaUsuarios(){
      int n = 0;
     char encapsulador[100];
     char* p = encapsulador;
-    char encapsuladorcodigo[4];
+    char encapsuladorcodigo[7];
     char* pcode = encapsuladorcodigo;
     char encapsuladorsemestre[2];
     char* ps= encapsuladorsemestre;
@@ -527,6 +527,19 @@ void informeUsoIntensivo(Equipo* equipos, int totalEquipos){
 
 
 int main (){
+    char nequipos[30];
+    char nusuarios[30];
+    
+    cout << "ingrese el nombre del archivo de equipos junto con su formato";
+    cin.getline(nequipos, 30); 
+
+    cout << "ingrese el nombre del archivo de usuarios junto con su formato";
+    cin.getline(nusuarios, 30); 
+
+    cargaequipos(nequipos);
+    cargausuarios(nusuarios);
+
+    
     
 }  
 
