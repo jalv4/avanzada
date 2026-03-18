@@ -334,7 +334,63 @@ void cerrarSesión(Equipo* equipos, int totalEquipos){
     cout<<"Ingrese el codigo de la sesion a cargar: ";
     cin>>codigoSesion;
 
-    
+    fstream archivo("sesiones.dat", ios::binary | ios::in | ios::out);
+    if(!archivo){
+        cout << "Error al abrir el archivo\n";
+        return;
+    }
+
+    SesionUso sesion;
+    bool encontrado = false;
+
+    while(archivo.read(reinterpret_cast<char*>(&sesion), sizeof(SesionUso))){
+        if(sesion.codigoSesion == codigoSesion){
+            encontrado = true;
+
+            int duracionReal;
+            cout<<"Ingrese la duracion REAL de la sesion: ";
+            cin>>duracionReal;
+
+            cin.ignore();
+            cout<<"Ingrese observaciones: ";
+            cin.getline(sesion.observaciones, 200);
+
+            //Buscar Equipos
+            Equipo* ptr = equipos;
+            for(int i = 0; i < totalEquipos; i++){
+                if(ptr->codigo == sesion.codigoEquipo){
+
+                    if(duracionReal > sesion.duracion){
+                        int extra = duracionReal - sesion.duracion;
+                        sesion.penalizacion = extra * (0.03 * ptr->costo);
+                    }
+
+                    char dano;
+                    cout<<"El equipo presenta danio? (s/n): ";
+                    cin>>dano;
+
+                    if(dano == 's' || dano == 'S'){
+                        strcpy(ptr->estado, "mantenimiento");
+                    }
+                    break;
+                }
+                ptr++;
+            }
+//Reescribir en el archivo
+            archivo.seekp(-sizeof(SesionUso), ios::cur);
+            archivo.write(reinterpret_cast<char*>(&sesion), sizeof(SesionUso));
+
+            cout<<"Sesion cerrada correctamente\n";
+            break;
+        }
+    }
+
+    if(!encontrado){
+        cout<<"Sesion no encontrada\n";
+    }
+
+    archivo.close();
+            
 }
 
 //6.
@@ -344,5 +400,6 @@ void cerrarSesión(Equipo* equipos, int totalEquipos){
 
 
 int main (){
+    
 }  
 
