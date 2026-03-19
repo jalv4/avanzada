@@ -524,22 +524,198 @@ void informeUsoIntensivo(Equipo* equipos, int totalEquipos){
 }
 
 //7.
+void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
 
+    float* penalizaciones = new float[totalUsuarios];
+    int* sesiones = new int[totalUsuarios];
 
+    float* pPen = penalizaciones;
+    int* pSes = sesiones;
+
+    while(pPen < penalizaciones + totalUsuarios){
+        *pPen = 0;
+        pPen++;
+    }
+
+    while(pSes < sesiones + totalUsuarios){
+        *pSes = 0;
+        pSes++;
+    }
+
+    ifstream archivo("sesiones.dat", ios::binary);
+
+    if(!archivo) {
+        cout << "No hay sesiones\n";
+        delete[] penalizaciones;
+        delete[] sesiones;
+        return;
+    }
+
+    SesionUso sesion;
+
+    while(archivo.read(reinterpret_cast<char*>(&sesion), sizeof(SesionUso))) {
+
+        Usuario* ptrU = usuarios;
+        float* ptrPen = penalizaciones;
+        int* ptrSes = sesiones;
+
+        while(ptrU < usuarios + totalUsuarios){
+            if(ptrU->codigo == sesion.codigoUsuario){
+                *ptrPen += sesion.penalizacion;
+                (*ptrSes)++;
+                break;
+            }
+            ptrU++;
+            ptrPen++;
+            ptrSes++;
+        }
+    }
+
+    archivo.close();
+
+    // Calcular índice
+    float* indice = new float[totalUsuarios];
+    float* ptrInd = indice;
+    float* ptrPen = penalizaciones;
+    int* ptrSes = sesiones;
+
+    while(ptrInd < indice + totalUsuarios){
+        if(*ptrSes > 0)
+            *ptrInd = (*ptrPen) / (*ptrSes);
+        else
+            *ptrInd = 0;
+
+        ptrInd++;
+        ptrPen++;
+        ptrSes++;
+    }
+
+    for(int k = 0; k < 3; k++){
+
+        float max = -1;
+        int pos = -1;
+
+        ptrInd = indice;
+        int contador = 0;
+
+        while(ptrInd < indice + totalUsuarios){
+            if(*ptrInd > max){
+                max = *ptrInd;
+                pos = contador;
+            }
+            ptrInd++;
+            contador++;
+        }
+
+        if(pos != -1){
+
+            Usuario* ptrU = usuarios + pos;
+
+            cout << "Usuario: " << ptrU->nombre
+                 << " | Indice: " << max << endl;
+
+            *(indice + pos) = -1; // marcar usado
+        }
+    }
+
+    delete[] penalizaciones;
+    delete[] sesiones;
+    delete[] indice;
+}
+
+//Main
 int main (){
-    char nequipos[30];
-    char nusuarios[30];
-    
-    cout << "ingrese el nombre del archivo de equipos junto con su formato";
-    cin.getline(nequipos, 30); 
+    Equipo* equipos = NULL;
+    Usuario* usuarios = NULL;
 
-    cout << "ingrese el nombre del archivo de usuarios junto con su formato";
-    cin.getline(nusuarios, 30); 
+    int totalEquipos = 0;
+    int totalUsuarios = 0;
 
-    cargaequipos(nequipos);
-    cargausuarios(nusuarios);
+    int opcion;
 
-    
-    
-}  
+    do {
+        cout << "\n========= MENU =========\n";
+        cout << "1. Cargar equipos\n";
+        cout << "2. Cargar usuarios\n";
+        cout << "3. Consultar estado laboratorio\n";
+        cout << "4. Programar sesion\n";
+        cout << "5. Cerrar sesion\n";
+        cout << "6. Informe uso intensivo\n";
+        cout << "7. Ranking usuarios criticos\n";
+        cout << "8. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
 
+        cin.ignore();
+
+        switch(opcion) {
+
+            case 1: {
+                char nombreArchivo[50];
+                cout<<"Ingrese archivo de equipos: ";
+                cin.getline(nombreArchivo, 50);
+
+                equipos = cargaequipos(nombreArchivo, totalEquipos);
+                break;
+            }
+
+            case 2: {
+                char nombreArchivo[50];
+                cout<<"Ingrese archivo de usuarios: ";
+                cin.getline(nombreArchivo, 50);
+
+                usuarios = cargaUsuarios(nombreArchivo, totalUsuarios);
+                break;
+            }
+
+            case 3:
+                if(equipos != NULL)
+                    consultarEstadoOpertaivoE(equipos, totalEquipos);
+                else
+                    cout << "Debe cargar equipos primero\n";
+                break;
+
+            case 4:
+                if(equipos != NULL && usuarios != NULL)
+                    programarSesion(equipos, totalEquipos, usuarios, totalUsuarios);
+                else
+                    cout<<"Debe cargar equipos y usuarios\n";
+                break;
+
+            case 5:
+                if(equipos != NULL)
+                    cerrarSesión(equipos, totalEquipos);
+                else
+                    cout<<"Debe cargar equipos primero\n";
+                break;
+
+            case 6:
+                if(equipos != NULL)
+                    informeUsoIntensivo(equipos, totalEquipos);
+                else
+                    cout<<"Debe cargar equipos primero\n";
+                break;
+
+            case 7:
+                if(usuarios != NULL)
+                    rankingUsuariosCriticos(usuarios, totalUsuarios);
+                else
+                    cout<<"Debe cargar usuarios primero\n";
+                break;
+
+            case 8:
+                cout<<"Saliendo del sistema...\n";
+                break;
+
+            default:
+                cout<<"Opcion invalida\n";
+        }
+
+    } while(opcion != 8);
+
+    // Liberar memoria
+    delete[] equipos;
+    delete[] usuarios;
+
+    return 0;
+}
