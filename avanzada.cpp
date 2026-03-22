@@ -467,6 +467,7 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
 
     arch.seekg(0, ios::end);
     int n = arch.tellg() / sizeof(SesionUso);
+
     if (n == 0) {
         cout << "No hay sesiones registradas\n";
         return;
@@ -481,7 +482,6 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
     for (int* p = sesiones; p < sesiones + totalUsuarios; p++) *p = 0;
     for (bool* p = usado; p < usado + totalUsuarios; p++) *p = false;
 
-    // Acumular datos
     for (int i = 0; i < n; i++) {
         SesionUso s;
         arch.seekg(i * sizeof(SesionUso));
@@ -500,9 +500,9 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
             pu++; pp++; ps++;
         }
     }
+
     arch.close();
 
-    // Calcular índice
     float* pi = indice;
     float* pp = penal;
     int* ps = sesiones;
@@ -517,7 +517,8 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
 
     cout << "\nRanking usuarios criticos:\n";
 
-    // Top 3
+    bool hayCriticos = false;
+
     for (int lugar = 1; lugar <= 3; lugar++) {
         float max = -1;
         int pos = -1;
@@ -535,7 +536,10 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
         }
 
         if (pos != -1 && max > 0) {
+            hayCriticos = true;
+
             Usuario* u = usuarios + pos;
+
             cout << lugar << ". " << u->nombre
                  << " | Sesiones: " << *(sesiones + pos)
                  << " | Penalizacion: $" << *(penal + pos)
@@ -543,6 +547,10 @@ void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
 
             *(usado + pos) = true;
         }
+    }
+
+    if (!hayCriticos) {
+        cout << "No hay usuarios criticos (sin penalizaciones registradas)\n";
     }
 
     delete[] penal;
@@ -656,4 +664,3 @@ int main() {
     delete[] equipos;
     delete[] usuarios;
 }
-
