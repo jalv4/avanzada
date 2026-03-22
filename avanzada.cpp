@@ -267,7 +267,8 @@ void cerrarSesion(Equipo* equipos, int totalEquipos) {
         float costo = 0;
         for (Equipo* p = equipos; p < equipos + totalEquipos; p++)
             if (p->codigo == s.codigoEquipo) { costo = p->costo; break; }
-        s.penalizacion = horas_extra * 0.03f * costo;
+        float porcentaje = 3;
+        s.penalizacion = horas_extra * (porcentaje / 100) * costo;
         cout << "Penalizacion aplicada: $" << s.penalizacion << "\n";
     }
 
@@ -322,7 +323,8 @@ void informeUsoIntensivo(Equipo* equipos, int totalEquipos) {
         int* ph = horas;
         while (pc < codigos + totalEquipos) {
             if (*pc == s.codigoEquipo) {
-                *ph += (s.cerrada ? s.duracionReal : s.duracionProgramada);
+                if (s.cerrada) *ph += s.duracionReal;
+                else           *ph += s.duracionProgramada;
                 break;
             }
             pc++; ph++;
