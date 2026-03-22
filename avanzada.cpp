@@ -1,8 +1,44 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <cstdlib>
 using namespace std;
+
+// ==================== CONVERSIONES ====================
+
+int convertirEntero(char* cad) {
+    int num = 0, i = 0;
+    while (cad[i] != '\0') {
+        num = num * 10 + (cad[i] - '0');
+        i++;
+    }
+    return num;
+}
+
+long convertirLong(char* cad) {
+    long num = 0;
+    int i = 0;
+    while (cad[i] != '\0') {
+        num = num * 10 + (cad[i] - '0');
+        i++;
+    }
+    return num;
+}
+
+float convertirFloat(char* cad) {
+    float num = 0, dec = 0;
+    int i = 0, decFlag = 0, div = 1;
+
+    while (cad[i] != '\0') {
+        if (cad[i] == '.') decFlag = 1;
+        else if (!decFlag) num = num * 10 + (cad[i] - '0');
+        else {
+            dec = dec * 10 + (cad[i] - '0');
+            div *= 10;
+        }
+        i++;
+    }
+    return num + dec / div;
+}
 
 // ==================== ESTRUCTURAS ====================
 
@@ -53,7 +89,10 @@ char* leerToken(char* p, char* dest) {
 
 Equipo* cargaEquipos(char nombreArchivo[], int &totalEquipos) {
     ifstream archivo(nombreArchivo);
-    if (!archivo) return NULL;
+    if (!archivo) {
+        cout << "Error al abrir archivo\n";
+        return NULL;
+    }
 
     char linea[400];
     int n = 0;
@@ -73,13 +112,13 @@ Equipo* cargaEquipos(char nombreArchivo[], int &totalEquipos) {
         char aux[200];
         char* p = linea;
 
-        p = leerToken(p, aux); ptrE->codigo = atoi(aux);
+        p = leerToken(p, aux); ptrE->codigo = convertirEntero(aux);
         p = leerToken(p, ptrE->nombre);
         p = leerToken(p, ptrE->laboratorio);
         p = leerToken(p, ptrE->tipo);
         p = leerToken(p, ptrE->estado);
-        p = leerToken(p, aux); ptrE->costo = atof(aux);
-        p = leerToken(p, aux); ptrE->semestreMin = atoi(aux);
+        p = leerToken(p, aux); ptrE->costo = convertirFloat(aux);
+        p = leerToken(p, aux); ptrE->semestreMin = convertirEntero(aux);
 
         char* d = ptrE->descripcion;
         while (*p != '\0') *d++ = *p++;
@@ -97,7 +136,10 @@ Equipo* cargaEquipos(char nombreArchivo[], int &totalEquipos) {
 
 Usuario* cargaUsuarios(char nombreArchivo[], int &totalUsuarios) {
     ifstream archivo(nombreArchivo);
-    if (!archivo) return NULL;
+    if (!archivo) {
+        cout << "Error al abrir archivo\n";
+        return NULL;
+    }
 
     char linea[300];
     int n = 0;
@@ -117,10 +159,10 @@ Usuario* cargaUsuarios(char nombreArchivo[], int &totalUsuarios) {
         char aux[100];
         char* p = linea;
 
-        p = leerToken(p, aux); ptrU->codigo = atol(aux);
+        p = leerToken(p, aux); ptrU->codigo = convertirLong(aux);
         p = leerToken(p, ptrU->nombre);
         p = leerToken(p, ptrU->programa);
-        p = leerToken(p, aux); ptrU->semestre = atoi(aux);
+        p = leerToken(p, aux); ptrU->semestre = convertirEntero(aux);
 
         ptrU++;
     }
@@ -184,27 +226,42 @@ void programarSesion(Equipo* equipos, int totalEquipos,
     if (!equipos || !usuarios) return;
 
     long codU;
+    cout << "Ingrese codigo de usuario: ";
     cin >> codU;
 
     Usuario* u = NULL;
     for (Usuario* p = usuarios; p < usuarios + totalUsuarios; p++)
         if (p->codigo == codU) { u = p; break; }
 
-    if (!u) return;
+    if (!u) {
+        cout << "Usuario no encontrado\n";
+        return;
+    }
 
     int codE;
+    cout << "Ingrese codigo del equipo: ";
     cin >> codE;
 
     Equipo* e = NULL;
     for (Equipo* p = equipos; p < equipos + totalEquipos; p++)
         if (p->codigo == codE) { e = p; break; }
 
-    if (!e) return;
+    if (!e) {
+        cout << "Equipo no encontrado\n";
+        return;
+    }
 
     char estadoOperativo[20] = "operativa";
 
-    if (strcmp(e->estado, estadoOperativo) != 0) return;
-    if (u->semestre < e->semestreMin) return;
+    if (strcmp(e->estado, estadoOperativo) != 0) {
+        cout << "El equipo no esta operativo\n";
+        return;
+    }
+
+    if (u->semestre < e->semestreMin) {
+        cout << "No cumple con el semestre minimo requerido\n";
+        return;
+    }
 
     SesionUso s;
     s.codigoSesion  = generarCodigoSesion();
@@ -215,25 +272,34 @@ void programarSesion(Equipo* equipos, int totalEquipos,
     s.cerrada       = 0;
     strcpy(s.observaciones, "Sin observaciones");
 
+    cout << "Ingrese duracion programada (horas): ";
     cin >> s.duracionProgramada;
-    cin.ignore();
+    cin.ignore(1000, '\n');
+
+    cout << "Ingrese fecha (ej: 2025-03-22): ";
     cin.getline(s.fecha, 20);
 
     ofstream arch("sesiones.dat", ios::binary | ios::app);
     arch.write((char*)&s, sizeof(SesionUso));
     arch.close();
-}
 
+    cout << "Sesion programada correctamente\n";
+}
 // ==================== CERRAR ====================
 
 void cerrarSesion(Equipo* equipos, int totalEquipos) {
 
     int codSesion;
+    cout << "\n--- CERRAR SESION ---\n";
+    cout << "Ingrese codigo de la sesion: ";
     cin >> codSesion;
-    cin.ignore();
+    cin.ignore(1000, '\n');
 
     fstream arch("sesiones.dat", ios::binary | ios::in | ios::out);
-    if (!arch) return;
+    if (!arch) {
+        cout << "No hay sesiones registradas\n";
+        return;
+    }
 
     arch.seekg(0, ios::end);
     int n = arch.tellg() / sizeof(SesionUso);
@@ -247,193 +313,240 @@ void cerrarSesion(Equipo* equipos, int totalEquipos) {
         if (s.codigoSesion == codSesion) { pos = i; break; }
     }
 
-    if (pos == -1) return;
+    if (pos == -1) {
+        cout << "Sesion no encontrada\n";
+        return;
+    }
 
+    if (s.cerrada) {
+        cout << "La sesion ya estaba cerrada\n";
+        return;
+    }
+
+    cout << "Ingrese duracion real (horas): ";
     cin >> s.duracionReal;
-    cin.ignore();
+    cin.ignore(1000, '\n');
+
+    cout << "Ingrese observaciones: ";
     cin.getline(s.observaciones, 200);
 
     int tasaPenalizacion = 3;
 
     s.penalizacion = 0;
     int extra = s.duracionReal - s.duracionProgramada;
+
     if (extra > 0) {
         float costo = 0;
         for (Equipo* p = equipos; p < equipos + totalEquipos; p++)
             if (p->codigo == s.codigoEquipo) { costo = p->costo; break; }
+
         s.penalizacion = extra * (tasaPenalizacion / 100.0) * costo;
     }
 
-    char respSi[3]    = "s";
-    char respSiMay[3] = "S";
     char dano[3];
+    cout << "El equipo sufrio danos? (s/n): ";
     cin >> dano;
-    cin.ignore();
+    cin.ignore(1000, '\n');
 
     char estadoDaniado[20] = "daniada";
 
-    if (strcmp(dano, respSi) == 0 || strcmp(dano, respSiMay) == 0) {
+    if (strcmp(dano, "s") == 0 || strcmp(dano, "S") == 0) {
         for (Equipo* p = equipos; p < equipos + totalEquipos; p++)
-            if (p->codigo == s.codigoEquipo) { strcpy(p->estado, estadoDaniado); break; }
+            if (p->codigo == s.codigoEquipo) {
+                strcpy(p->estado, estadoDaniado);
+                break;
+            }
     }
 
     s.cerrada = 1;
+
     arch.seekp(pos * sizeof(SesionUso));
     arch.write((char*)&s, sizeof(SesionUso));
     arch.close();
+
+    cout << "Sesion cerrada correctamente\n";
+
+    if (s.penalizacion > 0)
+        cout << "Penalizacion generada: $" << s.penalizacion << endl;
 }
 
-// ==================== INFORME USO INTENSIVO ====================
+// ==================== INFORME ====================
 
 void informeUsoIntensivo(Equipo* equipos, int totalEquipos) {
     if (!equipos) return;
 
     ifstream arch("sesiones.dat", ios::binary);
-    if (!arch) return;
+    if (!arch) {
+        cout << "No hay sesiones registradas\n";
+        return;
+    }
 
     arch.seekg(0, ios::end);
     int n = arch.tellg() / sizeof(SesionUso);
-    if (n == 0) return;
+    if (n == 0) {
+        cout << "No hay sesiones registradas\n";
+        return;
+    }
 
-    int* codigos = new int[totalEquipos];
-    int* horas   = new int[totalEquipos];
+    int* horas = new int[totalEquipos];
+    for (int* p = horas; p < horas + totalEquipos; p++) *p = 0;
 
-    for (int* p = codigos; p < codigos + totalEquipos; p++) *p = 0;
-    for (int* p = horas;   p < horas   + totalEquipos; p++) *p = 0;
-
-    int*    pCod = codigos;
-    Equipo* pE   = equipos;
-    while (pE < equipos + totalEquipos) { *pCod = pE->codigo; pCod++; pE++; }
-
+    // Acumular horas por equipo
     for (int i = 0; i < n; i++) {
         SesionUso s;
         arch.seekg(i * sizeof(SesionUso));
         arch.read((char*)&s, sizeof(SesionUso));
 
-        int* pc = codigos;
+        Equipo* pe = equipos;
         int* ph = horas;
-        while (pc < codigos + totalEquipos) {
-            if (*pc == s.codigoEquipo) {
-                if (s.cerrada) *ph += s.duracionReal;
-                else           *ph += s.duracionProgramada;
+
+        while (pe < equipos + totalEquipos) {
+            if (pe->codigo == s.codigoEquipo) {
+                if (s.cerrada)
+                    *ph += s.duracionReal;
+                else
+                    *ph += s.duracionProgramada;
                 break;
             }
-            pc++; ph++;
+            pe++; ph++;
         }
     }
     arch.close();
 
-    char** labs = new char*[totalEquipos];
-    for (char** p = labs; p < labs + totalEquipos; p++) {
-        *p = new char[50];
-        (*p)[0] = '\0';
-    }
-    int nLabs = 0;
-
-    for (Equipo* p = equipos; p < equipos + totalEquipos; p++) {
-        bool existe = false;
-        for (char** pl = labs; pl < labs + nLabs; pl++)
-            if (strcmp(*pl, p->laboratorio) == 0) { existe = true; break; }
-        if (!existe) { strcpy(*(labs + nLabs), p->laboratorio); nLabs++; }
-    }
-
     cout << "\nUso intensivo:\n";
-    for (char** pl = labs; pl < labs + nLabs; pl++) {
-        int     maxHoras = -1;
-        Equipo* mejor    = NULL;
+
+    // Recorrer laboratorios
+    for (Equipo* pLab = equipos; pLab < equipos + totalEquipos; pLab++) {
+
+        bool yaProcesado = false;
+        for (Equipo* pPrev = equipos; pPrev < pLab; pPrev++) {
+            if (strcmp(pPrev->laboratorio, pLab->laboratorio) == 0) {
+                yaProcesado = true;
+                break;
+            }
+        }
+
+        if (yaProcesado) continue;
+
+        int maxHoras = -1;
+        Equipo* mejor = NULL;
 
         Equipo* pe = equipos;
-        int*    ph = horas;
+        int* ph = horas;
+
         while (pe < equipos + totalEquipos) {
-            if (strcmp(pe->laboratorio, *pl) == 0 && *ph > maxHoras) {
-                maxHoras = *ph;
-                mejor    = pe;
+            if (strcmp(pe->laboratorio, pLab->laboratorio) == 0) {
+                if (*ph > maxHoras) {
+                    maxHoras = *ph;
+                    mejor = pe;
+                }
             }
             pe++; ph++;
         }
 
         if (mejor && maxHoras > 0)
-            cout << "-- " << *pl << ": " << mejor->nombre << " (" << maxHoras << " horas)\n";
+            cout << "-- " << pLab->laboratorio << ": "
+                 << mejor->nombre << " (" << maxHoras << " horas)\n";
         else
-            cout << "-- " << *pl << ": sin uso registrado\n";
+            cout << "-- " << pLab->laboratorio << ": sin uso registrado\n";
     }
 
-    for (char** p = labs; p < labs + totalEquipos; p++) delete[] *p;
-    delete[] labs;
-    delete[] codigos;
     delete[] horas;
 }
 
-// ==================== RANKING USUARIOS CRITICOS ====================
+// ==================== RANKING ====================
 
 void rankingUsuariosCriticos(Usuario* usuarios, int totalUsuarios) {
     if (!usuarios) return;
 
     ifstream arch("sesiones.dat", ios::binary);
-    if (!arch) return;
+    if (!arch) {
+        cout << "No hay sesiones registradas\n";
+        return;
+    }
 
     arch.seekg(0, ios::end);
     int n = arch.tellg() / sizeof(SesionUso);
-    if (n == 0) return;
+    if (n == 0) {
+        cout << "No hay sesiones registradas\n";
+        return;
+    }
 
-    float* penAcum   = new float[totalUsuarios];
-    int*   nSesiones = new int[totalUsuarios];
-    float* indice    = new float[totalUsuarios];
-    bool*  usado     = new bool[totalUsuarios];
+    float* penal = new float[totalUsuarios];
+    int* sesiones = new int[totalUsuarios];
+    float* indice = new float[totalUsuarios];
+    bool* usado = new bool[totalUsuarios];
 
-    for (float* p = penAcum;   p < penAcum   + totalUsuarios; p++) *p = 0;
-    for (int*   p = nSesiones; p < nSesiones + totalUsuarios; p++) *p = 0;
-    for (bool*  p = usado;     p < usado     + totalUsuarios; p++) *p = false;
+    for (float* p = penal; p < penal + totalUsuarios; p++) *p = 0;
+    for (int* p = sesiones; p < sesiones + totalUsuarios; p++) *p = 0;
+    for (bool* p = usado; p < usado + totalUsuarios; p++) *p = false;
 
+    // Acumular datos
     for (int i = 0; i < n; i++) {
         SesionUso s;
         arch.seekg(i * sizeof(SesionUso));
         arch.read((char*)&s, sizeof(SesionUso));
 
         Usuario* pu = usuarios;
-        float*   pp = penAcum;
-        int*     ps = nSesiones;
+        float* pp = penal;
+        int* ps = sesiones;
+
         while (pu < usuarios + totalUsuarios) {
-            if (pu->codigo == s.codigoUsuario) { *pp += s.penalizacion; (*ps)++; break; }
+            if (pu->codigo == s.codigoUsuario) {
+                *pp += s.penalizacion;
+                (*ps)++;
+                break;
+            }
             pu++; pp++; ps++;
         }
     }
     arch.close();
 
+    // Calcular índice
     float* pi = indice;
-    float* pp = penAcum;
-    int*   ps = nSesiones;
+    float* pp = penal;
+    int* ps = sesiones;
+
     while (pi < indice + totalUsuarios) {
-        if (*ps > 0) *pi = *pp / *ps;
-        else         *pi = 0;
+        if (*ps > 0)
+            *pi = *pp / *ps;
+        else
+            *pi = 0;
         pi++; pp++; ps++;
     }
 
     cout << "\nRanking usuarios criticos:\n";
-    for (int lugar = 1; lugar <= 3; lugar++) {
-        float  maxIdx = -1;
-        float* pMejor = NULL;
 
-        float* pIdx   = indice;
-        bool*  pUsado = usado;
+    // Top 3
+    for (int lugar = 1; lugar <= 3; lugar++) {
+        float max = -1;
+        int pos = -1;
+
+        float* pIdx = indice;
+        bool* pUsado = usado;
+        int i = 0;
+
         while (pIdx < indice + totalUsuarios) {
-            if (!*pUsado && *pIdx > maxIdx) { maxIdx = *pIdx; pMejor = pIdx; }
-            pIdx++; pUsado++;
+            if (!*pUsado && *pIdx > max) {
+                max = *pIdx;
+                pos = i;
+            }
+            pIdx++; pUsado++; i++;
         }
 
-        if (pMejor != NULL && maxIdx > 0) {
-            int      offset = pMejor - indice;
-            Usuario* u      = usuarios + offset;
+        if (pos != -1 && max > 0) {
+            Usuario* u = usuarios + pos;
             cout << lugar << ". " << u->nombre
-                 << " | Sesiones: "       << *(nSesiones + offset)
-                 << " | Penalizacion: $"  << *(penAcum   + offset)
-                 << " | Indice: "         << maxIdx << "\n";
-            *(usado + offset) = true;
+                 << " | Sesiones: " << *(sesiones + pos)
+                 << " | Penalizacion: $" << *(penal + pos)
+                 << " | Indice: " << max << endl;
+
+            *(usado + pos) = true;
         }
     }
 
-    delete[] penAcum;
-    delete[] nSesiones;
+    delete[] penal;
+    delete[] sesiones;
     delete[] indice;
     delete[] usado;
 }
@@ -449,38 +562,93 @@ int main() {
     int op;
 
     do {
-        cout << "\n1 Cargar equipos\n2 Cargar usuarios\n3 Consultar\n4 Programar\n5 Cerrar sesion\n6 Informe uso\n7 Ranking criticos\n8 Salir\n";
+        cout << "\n=====================================\n";
+        cout << "     SISTEMA DE LABORATORIO\n";
+        cout << "=====================================\n";
+        cout << "1. Cargar equipos\n";
+        cout << "2. Cargar usuarios\n";
+        cout << "3. Consultar laboratorio\n";
+        cout << "4. Programar sesion\n";
+        cout << "5. Cerrar sesion\n";
+        cout << "6. Informe uso\n";
+        cout << "7. Ranking criticos\n";
+        cout << "8. Salir\n";
+        cout << "=====================================\n";
+        cout << "Seleccione una opcion: ";
+
         cin >> op;
-        cin.ignore();
+        cin.ignore(1000, '\n');
 
         char nom[100];
 
         switch (op) {
+
             case 1:
+                cout << "Ingrese nombre del archivo de equipos: ";
                 cin.getline(nom, 100);
+
                 if (equipos) delete[] equipos;
                 equipos = cargaEquipos(nom, totalEquipos);
+
+                if (equipos)
+                    cout << "Archivo cargado correctamente\n";
+                else
+                    cout << "No se pudo abrir el archivo\n";
                 break;
+
             case 2:
+                cout << "Ingrese nombre del archivo de usuarios: ";
                 cin.getline(nom, 100);
+
                 if (usuarios) delete[] usuarios;
                 usuarios = cargaUsuarios(nom, totalUsuarios);
+
+                if (usuarios)
+                    cout << "Archivo cargado correctamente\n";
+                else
+                    cout << "No se pudo abrir el archivo\n";
                 break;
+
             case 3:
+                if (!equipos) {
+                    cout << "Debe cargar equipos primero\n";
+                    break;
+                }
                 consultarLaboratorio(equipos, totalEquipos);
                 break;
+
             case 4:
+                if (!equipos || !usuarios) {
+                    cout << "Debe cargar datos primero\n";
+                    break;
+                }
                 programarSesion(equipos, totalEquipos, usuarios, totalUsuarios);
                 break;
+
             case 5:
+                if (!equipos) {
+                    cout << "Debe cargar equipos primero\n";
+                    break;
+                }
                 cerrarSesion(equipos, totalEquipos);
                 break;
+
             case 6:
+                if (!equipos) {
+                    cout << "Debe cargar equipos primero\n";
+                    break;
+                }
                 informeUsoIntensivo(equipos, totalEquipos);
                 break;
+
             case 7:
+                if (!usuarios) {
+                    cout << "Debe cargar usuarios primero\n";
+                    break;
+                }
                 rankingUsuariosCriticos(usuarios, totalUsuarios);
                 break;
+
         }
 
     } while (op != 8);
@@ -488,3 +656,4 @@ int main() {
     delete[] equipos;
     delete[] usuarios;
 }
+
